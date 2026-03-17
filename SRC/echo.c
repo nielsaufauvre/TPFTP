@@ -5,6 +5,7 @@
 
 void echo(int connfd)
 {
+    //connfd est un descripteur
     size_t n;
     char buf[MAXLINE];
     rio_t rio;
