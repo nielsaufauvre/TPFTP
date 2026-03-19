@@ -2,7 +2,7 @@
  * echoserveri.c - An iterative echo server
  */
 
-#include "csapp.h"
+#include "../SRC/csapp.h"
 
 #define MAX_NAME_LEN 256
 

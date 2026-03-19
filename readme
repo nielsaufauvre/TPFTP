@@ -1,8 +1,0 @@
-#ATTEENTION :
-    La prof avait mentionné que le serveur et client devait être 
-    dans 2 repertoires differents (je sais plus trop la raison )
-
-#A traiter
-    comment creer les NB_PROCS processus
-    comment le pere va communiquer aux fils
-    et comment savoir si un fils est occupé ou pas

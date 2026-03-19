@@ -53,3 +53,9 @@ dkms.conf
 
 # debug information files
 *.dwo
+
+projet_FTP_l3_sr-1.pdf
+FTP-SR-vania.pdf
+sockets.pdf
+/.clang-format
+/CMakeLists.txt

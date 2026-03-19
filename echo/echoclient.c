@@ -1,9 +1,9 @@
 /*
  * echoclient.c - An echo client
  */
-#include "csapp.h"
+#include "../SRC/csapp.h"
 
-#include "client.h"
+#include "../SRC/client.h"
 
 
 int main(int argc, char **argv)
