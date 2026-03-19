@@ -13,6 +13,9 @@ void serveur_enfant(int listenfd) {
     char client_hostname[MAX_NAME_LEN];
     request_t request;
     int get_descriptor;
+    struct stat stat;
+  int n;
+  char send_buffer[MAXLINE];
 
     while (1) {
 
@@ -44,7 +47,21 @@ void serveur_enfant(int listenfd) {
           printf("Le client demande le fichier : %s\n", request.nom_fichier);
           if (access(request.nom_fichier, F_OK) == 0) {
             printf("Le fichier '%s' existe.\n", request.nom_fichier);
+
+
             get_descriptor = Open(request.nom_fichier,O_RDONLY,S_IRUSR);
+            fstat(get_descriptor,&stat);
+            size_t filesize = stat.st_size;
+            Rio_writen(connfd, &filesize, sizeof(size_t));
+
+            while ((n = Rio_readn(get_descriptor, send_buffer, MAXLINE)) > 0) {
+              Rio_writen(connfd, send_buffer, n);
+            }
+
+            Close(get_descriptor);
+            printf("Transfert de %s terminé (%ld octets).\n", request.nom_fichier, filesize);
+
+
 
           } else {
             printf("Le fichier '%s' n'existe pas ou n'est pas accessible.\n", request.nom_fichier);

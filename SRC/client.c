@@ -9,6 +9,22 @@
 //Définition du numéro de port prédéfini (Question 3)
 #define PORT 2121
 
+// Fonction permettant de connaitre le type de la requête
+typereq_t extraire_type(char *mot) {
+    if (strcasecmp(mot, "GET") == 0) {
+        return GET;
+    }
+    if (strcasecmp(mot, "LS") == 0) {
+        return LS;
+    }
+    if (strcasecmp(mot, "PUT") == 0) {
+        return PUT;
+    }
+
+    return UNKNOWN;
+}
+
+
 int main(int argc, char **argv)
 {
     int clientfd, port;
@@ -47,15 +63,14 @@ int main(int argc, char **argv)
     // Gestion de la lecture de la requete (Question 6)
     if (Fgets(buf, MAXLINE, stdin) != NULL){
 
-        sscanf(buf, "%s %s", premier_mot,deuxieme_mot);
-        if (strcmp(premier_mot,"GET") == 0) {
-            uniqueRequest.type = GET;
-        }
-        else {
-            uniqueRequest.type = UNKNOWN;
-        }
 
         // préparer la requête sous forme de structure request_t (Question 7)
+        sscanf(buf, "%s %s", premier_mot,deuxieme_mot);
+
+        uniqueRequest.type = extraire_type(premier_mot);
+
+
+
         strncpy(uniqueRequest.nom_fichier, deuxieme_mot, MAX_NAME_LEN - 1);
         uniqueRequest.nom_fichier[MAX_NAME_LEN - 1] = '\0';
 
@@ -64,6 +79,25 @@ int main(int argc, char **argv)
         Rio_writen(clientfd, &uniqueRequest, sizeof(request_t));
 
     }
+
+    // récupération de la donnée dans le cas de GET (Question 6)
+    char buffer3[MAXLINE];
+    size_t taille_attendue;
+    size_t total_recu;
+    int readfd = Open(uniqueRequest.nom_fichier, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+    Rio_readn(clientfd, &taille_attendue, sizeof(size_t));
+    int n;
+
+
+    while (total_recu < taille_attendue) {
+        n = Rio_readnb(&rio, buffer3, MAXLINE);
+        Rio_writen(readfd, buffer3, n);
+        total_recu += n;
+    }
+
+    printf("Transfert de %s terminé (%ld octets).\n", uniqueRequest.nom_fichier, taille_attendue);
+
+    Close(readfd);
 
     Close(clientfd);
     exit(0);
