@@ -7,7 +7,8 @@
 #.PRECIOUS: %.o
 
 CC = gcc
-CFLAGS = -Wall -Werror
+
+
 LDFLAGS =
 
 # Note: -lnsl does not seem to work on Mac OS but will
@@ -15,11 +16,11 @@ LDFLAGS =
 #LIBS += -lsocket -lnsl -lrt
 LIBS += -lpthread
 
-INCLUDE = csapp.h
-OBJS = csapp.o echo.o
+INCLUDE = csapp.h structure.h serveur_enfant.c
+OBJS = csapp.o
 INCLDIR = -I.
 
-PROGS = echoserveri echoclient 
+PROGS = serveur client
 
 
 all: $(PROGS)

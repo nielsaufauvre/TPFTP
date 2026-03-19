@@ -4,6 +4,7 @@
 /*les differentes types de requêtes (Question 1)*/
 
 typedef enum {
+    UNKNOWN,
     GET,
     PUT,
     LS
@@ -12,8 +13,11 @@ typedef enum {
 /*structure de données pour formatter les requêtes client vers le serveur (Question 2)*/
 typedef struct {
     typereq_t type; 
-    char *nom_fichier[MAX_NAME_LEN];
+    char nom_fichier[MAX_NAME_LEN];
 } request_t;
 
+// structure pour les réponses du serveur au client (Question 6)
+typedef struct {
 
+}response_t;
 

@@ -3,8 +3,7 @@
  */
 #include "../SRC/csapp.h"
 
-#include "../SRC/client.h"
-
+#include "../SRC/structure.h"
 
 int main(int argc, char **argv)
 {
