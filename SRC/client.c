@@ -3,6 +3,10 @@
 #include "client.h"
 
 
+//Définition du dossier de stockage du client (Question 5)
+#define CLIENT_DIR "./client_storage"
+
+
 int main(int argc, char **argv)
 {
     int clientfd, port;
@@ -13,6 +17,13 @@ int main(int argc, char **argv)
         fprintf(stderr, "usage: %s <host> <port>\n", argv[0]);
         exit(0);
     }
+
+    // Créer le répertoire de stockage s'il n'existe pas (Question 5)
+    mkdir(CLIENT_DIR, 0777);
+
+    // Se déplace dans ce répertoire (Question 5)
+    chdir(CLIENT_DIR);
+
     host = argv[1];
     port = atoi(argv[2]);
 
