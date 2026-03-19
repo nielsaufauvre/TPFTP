@@ -83,10 +83,11 @@ int main(int argc, char **argv)
     // récupération de la donnée dans le cas de GET (Question 6)
     char buffer3[MAXLINE];
     size_t taille_attendue;
-    size_t total_recu;
+    size_t total_recu=0;
     int readfd = Open(uniqueRequest.nom_fichier, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
     Rio_readn(clientfd, &taille_attendue, sizeof(size_t));
     int n;
+
 
 
     while (total_recu < taille_attendue) {
