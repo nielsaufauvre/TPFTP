@@ -1,5 +1,5 @@
 #include "csapp.h"
-#include "serveur_enfant.c"
+#include "serveur_enfant.h"
 
 
 
@@ -75,6 +75,3 @@ int main(int argc, char **argv)
   }
   exit(0);
 }
-
-
-

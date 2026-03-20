@@ -1,6 +1,5 @@
 #define MAX_NAME_LEN 256
 
-
 /*les differentes types de requêtes (Question 1)*/
 
 typedef enum {
@@ -16,8 +15,13 @@ typedef struct {
     char nom_fichier[MAX_NAME_LEN];
 } request_t;
 
+// codes de retour pour les réponses du serveur au client (Question 6)
+typedef enum {
+    RESPONSE_OK,
+    RESPONSE_ERROR
+} response_code_t;
+
 // structure pour les réponses du serveur au client (Question 6)
 typedef struct {
-
-}response_t;
-
+    response_code_t code;
+} response_t;
