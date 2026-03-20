@@ -116,6 +116,11 @@ void serveur_enfant(int listenfd) {
 
                 break;
             }
+
+            case PUT: {
+
+                break;
+            }
             case UNKNOWN: {
                 printf("Requete incorrecte.\n");
                 break;
