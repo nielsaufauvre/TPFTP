@@ -151,6 +151,20 @@ int main(int argc, char **argv)
                 }
             }
         }
+        // gestion de LS (Question 15)
+        else if (uniqueRequest.type == LS) {
+            char bufferLS[MAXLINE];
+
+            while (Rio_readlineb(&rio, bufferLS, MAXLINE) > 0) {
+
+                if (strcmp(bufferLS, "\n") == 0) {
+                    break;
+                }
+                printf("%s", bufferLS);
+            }
+        }
+
+
 
         else if (uniqueRequest.type == UNKNOWN) {
             printf("Requête incorrecte.\n");

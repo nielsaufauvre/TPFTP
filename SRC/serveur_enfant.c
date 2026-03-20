@@ -75,7 +75,28 @@ void serveur_enfant(int listenfd) {
                     Rio_writen(connfd, &response, sizeof(response_t));
                 }
                 break;
+            // implémentation de la commande LS (Question 15)
+            case LS:
 
+                pid_t pid;
+                pid = Fork();
+                // fils
+                if (pid == 0) {
+
+                    dup2(connfd, 1);
+                    close(connfd);
+                    char *args[] = {"ls", NULL};
+                    execvp("ls", args);
+
+                }
+                // père
+                else {
+                    wait(NULL);
+                    Rio_writen(connfd, "\n", 1);
+
+                }
+
+                break;
             case UNKNOWN:
                 printf("Requete incorrecte.\n");
                 break;
