@@ -1,5 +1,10 @@
 #define MAX_NAME_LEN 256
 
+
+
+//Définition du numéro de port  (Question 11)
+#define PORT 10000
+
 /*les differentes types de requêtes (Question 1)*/
 
 typedef enum {

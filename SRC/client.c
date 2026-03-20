@@ -5,8 +5,6 @@
 //Définition du dossier de stockage du client (Question 5)
 #define CLIENT_DIR "./client_storage"
 
-//Définition du numéro de port prédéfini (Question 3)
-#define PORT 2121
 
 // taille d'un bloc envoyé (Question 8)
 #define TAILLE_BLOC MAXLINE

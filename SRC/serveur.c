@@ -1,24 +1,24 @@
 #include "csapp.h"
 #include "serveur_enfant.h"
+#include "structure.h"
 
 
 
-//Définition du nombre de serveurs (Question 3)
-#define NB_PROC 2
-//Définition du numéro de port prédéfini (Question 3)
-#define PORT 2121
+//Définition du nombre de serveurs (Question 11)
+#define NB_SLAVES 2
+
 
 //Définition du dossier de stockage du serveur (Question 5)
 #define SERVER_DIR "./serveur_storage"
 
 // Création d'un tableau contenant les pid de tous les serveurs fils (Question 4)
-pid_t pid[NB_PROC];
+pid_t pid[NB_SLAVES];
 
 
 // handler pour envoyer le signal SIGINT à tous les serveurs fils (Question 4)
 void SIGINT_handler(int signal) {
 
-  for (int i=0 ; i<NB_PROC; i++) {
+  for (int i=0 ; i<NB_SLAVES; i++) {
     Kill(pid[i],SIGINT);
   }
   exit(0);
@@ -44,7 +44,7 @@ int main(int argc, char **argv)
   listenfd = Open_listenfd(port);
 
   // Création des NB_PROC serveurs fils (Question 3)
-  for (int i = 0; i < NB_PROC; i++) {
+  for (int i = 0; i < NB_SLAVES; i++) {
 
     pid[i] = Fork();
 
