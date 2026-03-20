@@ -11,6 +11,7 @@ typedef enum {
     UNKNOWN,
     GET,
     PUT,
+    RM,
     LS
 } typereq_t;
 

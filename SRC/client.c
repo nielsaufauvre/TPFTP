@@ -17,6 +17,9 @@ typereq_t extraire_type(char *mot) {
     if (strcasecmp(mot, "LS") == 0) {
         return LS;
     }
+    if (strcasecmp(mot, "RM") == 0) {
+        return RM;
+    }
     if (strcasecmp(mot, "PUT") == 0) {
         return PUT;
     }
@@ -164,6 +167,24 @@ int main(int argc, char **argv)
             }
         }
 
+        else if (uniqueRequest.type == RM) {
+            //TODO: gerer la reponse de suppression du serveur
+            response_t response;
+            Rio_readnb(&rio, &response, sizeof(response_t));
+            if (response.code == RESPONSE_OK) {
+                printf("Suppression du fichier réalisée.\n");
+
+            }
+            else {
+                printf("Problème lors de la suppression du fichier.\n");
+            }
+
+        }
+
+        else if (uniqueRequest.type == PUT) {
+            //TODO: gerer la reponse d'ajout du serveur
+
+        }
 
 
         else if (uniqueRequest.type == UNKNOWN) {

@@ -42,7 +42,7 @@ void serveur_enfant(int listenfd) {
             // Gestion de la récéption de la requete (Question 6)
 
             switch (request.type) {
-            case GET:
+            case GET:{
                 printf("Le client demande le fichier : %s\n", request.nom_fichier);
                 if (access(request.nom_fichier, F_OK) == 0) {
                     printf("Le fichier '%s' existe.\n", request.nom_fichier);
@@ -75,11 +75,11 @@ void serveur_enfant(int listenfd) {
                     Rio_writen(connfd, &response, sizeof(response_t));
                 }
                 break;
-            // implémentation de la commande LS (Question 15)
-            case LS:
+            }
+                // implémentation de la commande LS (Question 15)
+            case LS: {
 
-                pid_t pid;
-                pid = Fork();
+                pid_t pid = Fork();
                 // fils
                 if (pid == 0) {
 
@@ -97,9 +97,29 @@ void serveur_enfant(int listenfd) {
                 }
 
                 break;
-            case UNKNOWN:
+            }
+            // gestion des requêtes RM (Question 16)
+            case RM: {
+                pid_t pid_rm = Fork();
+                //fils
+                if (pid_rm == 0) {
+                    char *args[] = {"rm",request.nom_fichier, NULL};
+
+                    execvp("rm",args);
+                }
+                // père
+                else {
+                    response.code = RESPONSE_OK;
+                    Rio_writen(connfd, &response, sizeof(response_t));
+                }
+
+
+                break;
+            }
+            case UNKNOWN: {
                 printf("Requete incorrecte.\n");
                 break;
+            }
 
             default:
                 break;
