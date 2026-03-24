@@ -100,6 +100,12 @@ void serveur_enfant(int listenfd) {
             }
             // gestion des requêtes RM (Question 16)
             case RM: {
+                if (access(request.nom_fichier, F_OK) == 0) {
+                    response.code = RESPONSE_OK;
+                }
+                else {
+                    response.code = RESPONSE_ERROR;
+                }
                 pid_t pid_rm = Fork();
                 //fils
                 if (pid_rm == 0) {
@@ -109,7 +115,8 @@ void serveur_enfant(int listenfd) {
                 }
                 // père
                 else {
-                    response.code = RESPONSE_OK;
+
+                    wait(NULL);
                     Rio_writen(connfd, &response, sizeof(response_t));
                 }
 

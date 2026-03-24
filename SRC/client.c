@@ -140,15 +140,10 @@ int main(int argc, char **argv)
 
 
 
-                    // calcul du temps de transfert pour l'affichage (Question 7)
-                    gettimeofday(&end, NULL);
-                    double elapsed = (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1e6;
-                    double kbytes_per_sec = (taille_attendue / 1024.0) / (elapsed > 0 ? elapsed : 1);
+
 
                     // affichage des statistiques de transfert (Question 7)
                     printf("Transfer successfully complete.\n");
-                    printf("%zu bytes received in %.2f seconds (%.2f Kbytes/s).\n",
-                           taille_attendue, elapsed, kbytes_per_sec);
 
                     Close(readfd);
                 }
