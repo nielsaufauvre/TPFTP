@@ -51,6 +51,7 @@ int main(int argc, char **argv)
 
 
     clientfd = Open_clientfd(host, port);
+    printf("Clientfd: %d\n",clientfd);
 
     printf("Connected to %s\n", host);
 

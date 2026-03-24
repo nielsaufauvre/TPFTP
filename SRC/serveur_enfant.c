@@ -6,7 +6,7 @@
 
 
 // Gère la logique des serveurs fils (Question 3)
-void serveur_enfant(int listenfd) {
+void serveur_enfant(int listenfd, const int *nombre_connexions) {
     int connfd;
     struct sockaddr_in clientaddr;
     socklen_t clientlen;
@@ -27,7 +27,18 @@ void serveur_enfant(int listenfd) {
         // Initialise la structure à chaque itération (Question 3)
         clientlen = (socklen_t)sizeof(clientaddr);
 
+        printf("NB_CONNEXIONS:%d \n",*nombre_connexions);
+
+        if (*nombre_connexions>=NB_SLAVES) {
+            printf("Veuillez patienter: nombre de connexions trop importante.\n");
+        }
         connfd = Accept(listenfd, (SA *)&clientaddr, &clientlen);
+
+        //incrémentation du nombre de connexions
+         (*nombre_connexions)++;
+
+
+
 
         Getnameinfo((SA *) &clientaddr, clientlen,
                   client_hostname, MAX_NAME_LEN, 0, 0, 0);

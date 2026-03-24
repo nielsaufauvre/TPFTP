@@ -4,8 +4,7 @@
 
 
 
-//Définition du nombre de serveurs (Question 11)
-#define NB_SLAVES 2
+
 
 
 //Définition du dossier de stockage du serveur (Question 5)
@@ -28,6 +27,10 @@ void SIGINT_handler(int signal) {
 int main(int argc, char **argv)
 {
   int listenfd, port;
+
+
+  //compte le nombre de connexion
+  int compteur_connexion = 0;
 
   // Créer le répertoire de stockage s'il n'existe pas (Question 5)
   mkdir(SERVER_DIR, 0777);
@@ -57,7 +60,7 @@ int main(int argc, char **argv)
 
 
       // Gère la logique des serveurs fils (Question 3)
-      serveur_enfant(listenfd);
+      serveur_enfant(listenfd,&compteur_connexion);
 
       // Si le serveur enfant sort (Question 3)
       Close(listenfd);

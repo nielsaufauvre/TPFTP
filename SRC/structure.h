@@ -1,5 +1,7 @@
 #define MAX_NAME_LEN 256
 
+//Définition du nombre de serveurs (Question 11)
+#define NB_SLAVES 2
 
 // taille d'un bloc envoyé (Question 8)
 #define TAILLE_BLOC MAXLINE
@@ -33,3 +35,6 @@ typedef enum {
 typedef struct {
     response_code_t code;
 } response_t;
+
+
+
