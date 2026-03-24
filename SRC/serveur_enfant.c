@@ -79,9 +79,12 @@ void serveur_enfant(int listenfd) {
                 // implémentation de la commande LS (Question 15)
             case LS: {
 
+                printf("1\n");
+
                 pid_t pid = Fork();
                 // fils
                 if (pid == 0) {
+                    printf("2\n");
 
                     dup2(connfd, 1);
                     close(connfd);
