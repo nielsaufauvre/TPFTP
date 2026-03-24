@@ -2,6 +2,5 @@
 #define SERVEUR_ENFANT_H
 
 // déclaration de la fonction serveur_enfant (Question 3)
-void serveur_enfant(int listenfd);
-
+void serveur_enfant(int listenfd, int pipe_lecture, int pipe_ecriture);
 #endif

@@ -2,11 +2,8 @@
 #include "structure.h"
 #include "serveur_enfant.h"
 
-
-
-
 // Gère la logique des serveurs fils (Question 3)
-void serveur_enfant(int listenfd) {
+void serveur_enfant(int listenfd, int pipe_lecture,int pipe_ecriture) {
     int connfd;
     struct sockaddr_in clientaddr;
     socklen_t clientlen;
@@ -20,20 +17,25 @@ void serveur_enfant(int listenfd) {
     char send_buffer[MAXLINE];
     char buf[MAXLINE];
     rio_t rio;
-
+    char signal_pere;
+    char signal_retour = 'k';
 
     while (1) {
+
+
+        // Attente du signal de départ du père
+        if (Rio_readn(pipe_lecture, &signal_pere, 1) <= 0) {
+            continue;
+        }
+
+
 
         // Initialise la structure à chaque itération (Question 3)
         clientlen = (socklen_t)sizeof(clientaddr);
 
-
-
-
         connfd = Accept(listenfd, (SA *)&clientaddr, &clientlen);
 
-
-
+        Write(pipe_ecriture, &signal_retour, 1);
 
 
 
@@ -87,27 +89,20 @@ void serveur_enfant(int listenfd) {
             }
                 // implémentation de la commande LS (Question 15)
             case LS: {
-
-                //printf("1\n");
-
                 pid_t pid = Fork();
                 // fils
                 if (pid == 0) {
-                    printf("2\n");
-
                     dup2(connfd, 1);
                     close(connfd);
                     char *args[] = {"ls", NULL};
                     execvp("ls", args);
-
+                    exit(0);
                 }
                 // père
                 else {
                     wait(NULL);
                     Rio_writen(connfd, "\n", 1);
-
                 }
-
                 break;
             }
             // gestion des requêtes RM (Question 16)
@@ -122,17 +117,14 @@ void serveur_enfant(int listenfd) {
                 //fils
                 if (pid_rm == 0) {
                     char *args[] = {"rm",request.nom_fichier, NULL};
-
                     execvp("rm",args);
+                    exit(0);
                 }
                 // père
                 else {
-
                     wait(NULL);
                     Rio_writen(connfd, &response, sizeof(response_t));
                 }
-
-
                 break;
             }
 
@@ -144,68 +136,40 @@ void serveur_enfant(int listenfd) {
 
                 //initialisation de rio
                 Rio_readinitb(&rio,connfd);
-                
-                //TODO : ajout de la reception du client
-                //reception du code de retour du client
-
 
                 //lecture de la taille attendue et du nombre de blocs à recevoir
                 Rio_readnb(&rio, &taille_attendue , sizeof(size_t));
-
                 Rio_readnb(&rio, &nb_bloc_a_recevoir , sizeof(int));
 
-              if (nb_bloc_a_recevoir > 0) {
-                    //creation du fichier de même nom dans le repertoire 
+                if (nb_bloc_a_recevoir > 0) {
+                    //creation du fichier de même nom dans le repertoire
                     int readfd = Open(request.nom_fichier, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
 
                     for (int i = 0; i < nb_bloc_a_recevoir; i++) {
                         // calcule la taille réelle du bloc (le dernier peut être plus petit)
                         size_t reste = taille_attendue - total_recu;
-                        size_t taille_bloc_actuel = 0;
-                        if (reste < TAILLE_BLOC) {
-                            taille_bloc_actuel=reste;
-                        }else {
-                            taille_bloc_actuel = TAILLE_BLOC;
-                        }
+                        size_t taille_bloc_actuel = (reste < TAILLE_BLOC) ? reste : TAILLE_BLOC;
 
-                        int n = Rio_readnb(&rio, buf, taille_bloc_actuel);
-                        if (n <= 0) {
-                            break;
-                        }
+                        int n_read = Rio_readnb(&rio, buf, taille_bloc_actuel);
+                        if (n_read <= 0) break;
 
-                        Rio_writen(readfd, buf, n);
-                        total_recu += n;
-
-                        if (total_recu >= taille_attendue) {
-                            break;
-                        }
+                        Rio_writen(readfd, buf, n_read);
+                        total_recu += n_read;
                     }
-
-
-
-
-
                     // affichage des statistiques de transfert (Question 7)
                     printf("Transfer successfully complete.\n");
-
                     Close(readfd);
                 }
+                break;
             }
-        
-            break;
-            
-
             case UNKNOWN: {
                 printf("Requete incorrecte.\n");
                 break;
             }
-
             default:
                 break;
             }
-
         }
-
         Close(connfd);
     }
 }
