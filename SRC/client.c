@@ -6,8 +6,6 @@
 #define CLIENT_DIR "./client_storage"
 
 
-// taille d'un bloc envoyé (Question 8)
-#define TAILLE_BLOC MAXLINE
 
 // Fonction permettant de connaitre le type de la requête
 typereq_t extraire_type(char *mot) {
@@ -30,9 +28,12 @@ typereq_t extraire_type(char *mot) {
 
 int main(int argc, char **argv)
 {
-    int clientfd, port;
+    int clientfd, port, n;
     char *host, buf[MAXLINE];
     rio_t rio;
+    int put_descriptor;
+    struct stat file_stat;
+    char send_buffer[MAXLINE];
 
     if (argc != 2) {
         fprintf(stderr, "usage: %s <host>\n", argv[0]);
@@ -178,7 +179,45 @@ int main(int argc, char **argv)
 
         else if (uniqueRequest.type == PUT) {
             //TODO: gerer la reponse d'ajout du serveur
+            //verification du fichier
 
+            if(access(uniqueRequest.nom_fichier,F_OK) == -1 ){
+                fprintf(stdout,"ce fichier n'existe pas en local\n");
+            }
+
+            else{
+                //le fichier existe
+            
+
+
+                put_descriptor = Open(uniqueRequest.nom_fichier,O_RDONLY,S_IRUSR);
+                fstat(put_descriptor,&file_stat);
+                ssize_t filesize = file_stat.st_size;
+                int nb_blocs = (filesize + TAILLE_BLOC - 1) / TAILLE_BLOC;
+
+                //envoie de la taille du fichier
+                Rio_writen(clientfd, &filesize, sizeof(size_t));
+
+                //envoie du nombre de blocs
+                Rio_writen(clientfd, &nb_blocs, sizeof(int));
+
+                while((n = Rio_readn(put_descriptor,send_buffer, TAILLE_BLOC)) > 0){
+                    
+                    Rio_writen(clientfd, send_buffer, n);
+
+                
+                }
+
+                Close(put_descriptor);
+                printf("Transfert du fichier vers le serveur terminé\n");
+
+
+
+            }
+            
+
+
+          
         }
 
 

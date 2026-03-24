@@ -4,8 +4,6 @@
 
 
 
-// taille d'un bloc envoyé (Question 8)
-#define TAILLE_BLOC MAXLINE
 
 // Gère la logique des serveurs fils (Question 3)
 void serveur_enfant(int listenfd) {
@@ -20,6 +18,9 @@ void serveur_enfant(int listenfd) {
     struct stat file_stat;
     int n;
     char send_buffer[MAXLINE];
+    char buf[MAXLINE];
+    rio_t rio;
+
 
     while (1) {
 
@@ -79,7 +80,7 @@ void serveur_enfant(int listenfd) {
                 // implémentation de la commande LS (Question 15)
             case LS: {
 
-                printf("1\n");
+                //printf("1\n");
 
                 pid_t pid = Fork();
                 // fils
@@ -128,9 +129,64 @@ void serveur_enfant(int listenfd) {
             }
 
             case PUT: {
+                //verification de la reception
+                size_t taille_attendue;
+                size_t total_recu = 0;
+                int nb_bloc_a_recevoir;
 
-                break;
+                //initialisation de rio
+                Rio_readinitb(&rio,connfd);
+                
+                //TODO : ajout de la reception du client
+                //reception du code de retour du client
+
+
+                //lecture de la taille attendue et du nombre de blocs à recevoir
+                Rio_readnb(&rio, &taille_attendue , sizeof(size_t));
+
+                Rio_readnb(&rio, &nb_bloc_a_recevoir , sizeof(int));
+
+              if (nb_bloc_a_recevoir > 0) {
+                    //creation du fichier de même nom dans le repertoire 
+                    int readfd = Open(request.nom_fichier, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+
+                    for (int i = 0; i < nb_bloc_a_recevoir; i++) {
+                        // calcule la taille réelle du bloc (le dernier peut être plus petit)
+                        size_t reste = taille_attendue - total_recu;
+                        size_t taille_bloc_actuel = 0;
+                        if (reste < TAILLE_BLOC) {
+                            taille_bloc_actuel=reste;
+                        }else {
+                            taille_bloc_actuel = TAILLE_BLOC;
+                        }
+
+                        int n = Rio_readnb(&rio, buf, taille_bloc_actuel);
+                        if (n <= 0) {
+                            break;
+                        }
+
+                        Rio_writen(readfd, buf, n);
+                        total_recu += n;
+
+                        if (total_recu >= taille_attendue) {
+                            break;
+                        }
+                    }
+
+
+
+
+
+                    // affichage des statistiques de transfert (Question 7)
+                    printf("Transfer successfully complete.\n");
+
+                    Close(readfd);
+                }
             }
+        
+            break;
+            
+
             case UNKNOWN: {
                 printf("Requete incorrecte.\n");
                 break;

@@ -1,6 +1,8 @@
 #define MAX_NAME_LEN 256
 
 
+// taille d'un bloc envoyé (Question 8)
+#define TAILLE_BLOC MAXLINE
 
 //Définition du numéro de port (Question 11)
 #define PORT 10000
