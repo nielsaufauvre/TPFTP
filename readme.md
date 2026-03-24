@@ -5,3 +5,7 @@
 #A traiter
 -Reponses -> creer plusieurs types
 -Gerer le temps d'envois des fichiers
+
+
+A faire :
+    10,12,13,14,17
