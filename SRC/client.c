@@ -5,6 +5,8 @@
 //Définition du dossier de stockage du client (Question 5)
 #define CLIENT_DIR "./client_storage"
 
+#define UNFINISHED_DIR "./unfinished"
+
 
 
 // Fonction permettant de connaitre le type de la requête
@@ -26,6 +28,12 @@ typereq_t extraire_type(char *mot) {
 }
 
 
+//handler du sigint pour le client
+void SIGINT_handler(int signal){
+
+
+}
+
 int main(int argc, char **argv)
 {
     int clientfd, port, n;
@@ -37,8 +45,11 @@ int main(int argc, char **argv)
 
     if (argc != 2) {
         fprintf(stderr, "usage: %s <host>\n", argv[0]);
-        exit(0);
+         exit(0);
     }
+
+    //signal
+    Signal(SIGINT,SIGINT_handler);
 
     // Créer le répertoire de stockage s'il n'existe pas (Question 5)
     mkdir(CLIENT_DIR, 0777);
@@ -112,12 +123,23 @@ int main(int argc, char **argv)
 
                 if (nb_bloc_a_recevoir > 0) {
                     int readfd = Open(uniqueRequest.nom_fichier, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+                    char *fichier_tmp = strcat("unfinished",uniqueRequest.nom_fichier);
+                   
+                    //deplacement dans le repertoire des unfinished
+                    chdir(UNFINISHED_DIR);
+                   
+                    int unfinishedFD =Open(fichier_tmp, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
 
-                    // mesure du temps de transfert (Question 7)
-                    struct timeval start, end;
-                    gettimeofday(&start, NULL);
-
+                    chdir(".."); //deplacement dans le repertoire parent (client storage)
+                  
                     for (int i = 0; i < nb_bloc_a_recevoir; i++) {
+                       
+                        //memorisation du dernier bloc
+                        Rio_writen(unfinishedFD, &i, sizeof(int));
+                        //on se place au debut du fichier
+                        lseek(unfinishedFD, 0, SEEK_SET);
+
+
                         // calcule la taille réelle du bloc (le dernier peut être plus petit)
                         size_t reste = taille_attendue - total_recu;
                         size_t taille_bloc_actuel = 0;
@@ -135,9 +157,12 @@ int main(int argc, char **argv)
                         Rio_writen(readfd, buf, n);
                         total_recu += n;
 
+
                         if (total_recu >= taille_attendue) {
                             break;
                         }
+
+
                     }
 
 
@@ -146,6 +171,16 @@ int main(int argc, char **argv)
 
                     // affichage des statistiques de transfert (Question 7)
                     printf("Transfer successfully complete.\n");
+
+                    //fermeture du fichier tmp d'erreurs
+                    Close(unfinishedFD);
+                    
+                    //supression du fichier temporaire
+                    chdir(UNFINISHED_DIR);
+                    remove(fichier_tmp);
+
+                    //on revient dans le repertoire principale
+                    chdir("..");
 
                     Close(readfd);
                 }
@@ -230,3 +265,5 @@ int main(int argc, char **argv)
     Close(clientfd);
     exit(0);
 }
+
+
