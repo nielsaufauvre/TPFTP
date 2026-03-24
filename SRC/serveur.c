@@ -60,7 +60,7 @@ int main(int argc, char **argv)
 
 
       // Gère la logique des serveurs fils (Question 3)
-      serveur_enfant(listenfd,&compteur_connexion);
+      serveur_enfant(listenfd);
 
       // Si le serveur enfant sort (Question 3)
       Close(listenfd);
