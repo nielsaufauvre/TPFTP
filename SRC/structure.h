@@ -22,7 +22,8 @@ typedef enum {
     GET,
     PUT,
     RM,
-    LS
+    LS,
+    AUTH
 } typereq_t;
 
 /*structure de données pour formatter les requêtes client vers le serveur (Question 2)*/
@@ -30,6 +31,8 @@ typedef struct {
     typereq_t type; 
     char nom_fichier[MAX_NAME_LEN];
     long offset_reprise;
+    char username[MAX_NAME_LEN];
+    char password[MAX_NAME_LEN];
 } request_t;
 
 // codes de retour pour les réponses du serveur au client (Question 6)

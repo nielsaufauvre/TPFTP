@@ -218,6 +218,15 @@ void reprise_transfert(int clientfd,rio_t *rio) {
     }
 }
 
+void demander_authentification(int clientfd, request_t *req) {
+
+
+    Rio_writen(clientfd, &req, sizeof(request_t));
+
+
+
+}
+
 int main(int argc, char **argv)
 {
     int clientfd, port;
@@ -250,6 +259,7 @@ int main(int argc, char **argv)
 
     char premier_mot[MAX_NAME_LEN];
     char deuxieme_mot[MAX_NAME_LEN];
+    char troisieme_mot[MAX_NAME_LEN];
 
 
     reprise_transfert(clientfd,&rio);
@@ -260,12 +270,16 @@ int main(int argc, char **argv)
         // initialise premier et deuxieme mot a chaque tour de boucle
         memset(premier_mot, 0, MAX_NAME_LEN);
         memset(deuxieme_mot, 0, MAX_NAME_LEN);
+        memset(troisieme_mot, 0, MAX_NAME_LEN);
+
+
+
 
         // Gestion de la lecture de la requete (Question 6)
         if (Fgets(buf, MAXLINE, stdin) != NULL) {
 
             // préparer la requête sous forme de structure request_t (Question 7)
-            sscanf(buf, "%s %s", premier_mot, deuxieme_mot);
+            sscanf(buf, "%s %s %s", premier_mot, deuxieme_mot,troisieme_mot);
 
             // verifie si le mot est bye pour quitter la connexion (Question 9)
             if (strcmp(premier_mot, "bye") == 0) {
@@ -273,8 +287,19 @@ int main(int argc, char **argv)
             }
             uniqueRequest.type = extraire_type(premier_mot);
 
-            strncpy(uniqueRequest.nom_fichier, deuxieme_mot, MAX_NAME_LEN - 1);
-            uniqueRequest.nom_fichier[MAX_NAME_LEN - 1] = '\0';
+            if (uniqueRequest.type == AUTH) {
+                strncpy(uniqueRequest.username, deuxieme_mot, MAX_NAME_LEN - 1);
+                uniqueRequest.username[MAX_NAME_LEN - 1] = '\0';
+                strncpy(uniqueRequest.password, troisieme_mot, MAX_NAME_LEN - 1);
+                uniqueRequest.password[MAX_NAME_LEN - 1] = '\0';
+            }
+
+            else {
+                strncpy(uniqueRequest.nom_fichier, deuxieme_mot, MAX_NAME_LEN - 1);
+                uniqueRequest.nom_fichier[MAX_NAME_LEN - 1] = '\0';
+            }
+
+
 
             Rio_writen(clientfd, &uniqueRequest, sizeof(request_t));
         }
@@ -292,6 +317,9 @@ int main(int argc, char **argv)
         }
         else if (uniqueRequest.type == PUT) {
             envoyer_fichier(clientfd, &uniqueRequest);
+        }
+        else if (uniqueRequest.type == AUTH) {
+            demander_authentification(clientfd,&uniqueRequest);
         }
         else if (uniqueRequest.type == UNKNOWN) {
             printf("Requête incorrecte.\n");

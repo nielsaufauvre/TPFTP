@@ -134,6 +134,11 @@ void traiter_put(int connfd, request_t *request) {
     Close(readfd);
 }
 
+void traiter_auth(int connfd,request_t *request) {
+    char *username = request.
+}
+
+
 
 // Gère la logique des serveurs fils (Question 3)
 void serveur_enfant(int listenfd, int pipe_lecture, int pipe_ecriture) {
@@ -190,6 +195,9 @@ void serveur_enfant(int listenfd, int pipe_lecture, int pipe_ecriture) {
             case PUT:
                 traiter_put(connfd, &request);
                 break;
+
+            case AUTH:
+                traiter_auth(connfd,&request);
 
             case UNKNOWN:
                 printf("Requete incorrecte.\n");
