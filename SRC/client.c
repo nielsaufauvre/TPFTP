@@ -126,9 +126,11 @@ int main(int argc, char **argv)
 
                 if (nb_bloc_a_recevoir > 0) {
                     int readfd = Open(uniqueRequest.nom_fichier, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
-                    char *fichier_tmp = strcat("unfinished",uniqueRequest.nom_fichier);
+                    char fichier_tmp[MAX_NAME_LEN + 20];
+                    snprintf(fichier_tmp, sizeof(fichier_tmp), "unfinished_%s", uniqueRequest.nom_fichier);
                    
                     //deplacement dans le repertoire des unfinished
+                    mkdir(UNFINISHED_DIR, 0777);
                     chdir(UNFINISHED_DIR);
                    
                     int unfinishedFD =Open(fichier_tmp, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
