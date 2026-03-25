@@ -29,6 +29,7 @@ typedef enum {
 typedef struct {
     typereq_t type; 
     char nom_fichier[MAX_NAME_LEN];
+    long offset_reprise;
 } request_t;
 
 // codes de retour pour les réponses du serveur au client (Question 6)

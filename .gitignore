@@ -59,7 +59,9 @@ FTP-SR-vania.pdf
 sockets.pdf
 /.clang-format
 /CMakeLists.txt
-
+SRC/serveur_storage
+SRC/client_storage
+SRC/storage_root
 
 serveur
 client
