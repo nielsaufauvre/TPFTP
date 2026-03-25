@@ -72,7 +72,7 @@ int main(int argc, char **argv)
     FD_ZERO(&readfds);
     FD_SET(listenfd, &readfds);
 
-    Select(listenfd + 1, &readfds, NULL, NULL, NULL);
+    Select(listenfd + 1, &readfds,NULL, NULL, NULL);
 
     // On délègue à l'esclave
     Write(pipes[prochain_esclave][1], &signal, 1);

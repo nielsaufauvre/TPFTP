@@ -1,3 +1,9 @@
+#ifndef STRUCTURE_H
+#define STRUCTURE_H
+
+#include <stddef.h>
+#include <sys/types.h>
+
 #define MAX_NAME_LEN 256
 
 //Définition du nombre de serveurs (Question 11)
@@ -37,4 +43,5 @@ typedef struct {
 } response_t;
 
 
+#endif
 

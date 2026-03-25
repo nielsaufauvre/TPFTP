@@ -30,7 +30,7 @@ typereq_t extraire_type(char *mot) {
 
 //handler du sigint pour le client
 void SIGINT_handler(int signal){
-
+    exit(0);
 
 }
 
@@ -74,6 +74,9 @@ int main(int argc, char **argv)
 
     char premier_mot[MAX_NAME_LEN];
     char deuxieme_mot[MAX_NAME_LEN];
+
+
+
 
 
     // autorisez plusieurs requetes par connexion (Question 9)
