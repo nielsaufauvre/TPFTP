@@ -90,26 +90,58 @@ void recevoir_fichier(rio_t *rio, request_t *req, char *buf) {
     Close(readfd);
 }
 
-// Envoie un fichier local vers le serveur
+
+int authentifier_client(int clientfd) {
+    char buffer[MAXLINE];
+    authentification_t auth;
+    response_t resp;
+    if (Rio_readn(clientfd, buffer, MAXLINE) <= 0) {
+        return 0;
+    }
+    printf("Nom d'utilisateur : ");
+    scanf("%s", auth.username);
+    printf("Mot de passe : ");
+    scanf("%s", auth.password);
+    Rio_writen(clientfd, &auth, sizeof(authentification_t));
+    if (Rio_readn(clientfd, &resp, sizeof(response_t)) <= 0) {
+        return 0;
+    }
+
+    if (resp.code == RESPONSE_OK) {
+        printf("Authentification réussie.\n");
+        return 1;
+    } else {
+        printf("Échec de l'authentification.\n");
+        return 0;
+    }
+}
+
+// Envoi un fichier vers le serveur
 void envoyer_fichier(int clientfd, request_t *req) {
     if (access(req->nom_fichier, F_OK) == -1) {
-        fprintf(stdout, "ce fichier n'existe pas en local\n");
+        printf("Fichier local introuvable.\n");
         return;
     }
-    int put_descriptor = Open(req->nom_fichier, O_RDONLY, S_IRUSR);
-    struct stat file_stat;
-    fstat(put_descriptor, &file_stat);
-    ssize_t filesize = file_stat.st_size;
+    if (!authentifier_client(clientfd)) {
+        printf("Authentification non réussie.\n");
+        return;
+    }
+    int fd = Open(req->nom_fichier, O_RDONLY, 0);
+    struct stat st;
+    fstat(fd, &st);
+    size_t filesize = st.st_size;
     int nb_blocs = (filesize + TAILLE_BLOC - 1) / TAILLE_BLOC;
+
     Rio_writen(clientfd, &filesize, sizeof(size_t));
     Rio_writen(clientfd, &nb_blocs, sizeof(int));
-    char send_buffer[MAXLINE];
+
+    char send_buf[TAILLE_BLOC];
     int n;
-    while ((n = Rio_readn(put_descriptor, send_buffer, TAILLE_BLOC)) > 0) {
-        Rio_writen(clientfd, send_buffer, n);
+    while ((n = Rio_readn(fd, send_buf, TAILLE_BLOC)) > 0) {
+        Rio_writen(clientfd, send_buf, n);
     }
-    Close(put_descriptor);
-    printf("Transfert du fichier vers le serveur terminé\n");
+    Close(fd);
+    printf("Transfert terminé.\n");
 }
 
 // Reçoit et affiche la liste des fichiers du serveur
@@ -124,9 +156,15 @@ void recevoir_ls(rio_t *rio) {
 }
 
 // Reçoit et affiche le résultat d'une suppression
-void recevoir_rm(rio_t *rio) {
+void recevoir_rm(int clientfd) {
+    if (!authentifier_client(clientfd)) {
+        printf("Authentification non réussie.\n");
+        return;
+    }
+
     response_t response;
-    Rio_readnb(rio, &response, sizeof(response_t));
+    Rio_readn(clientfd, &response, sizeof(response_t));
+
     if (response.code == RESPONSE_OK) {
         printf("Suppression du fichier réalisée.\n");
     } else {
@@ -161,11 +199,6 @@ void reprise_transfert(int clientfd,rio_t *rio) {
     }
 }
 
-// Demander une athentification au serveur
-void demander_authentification(int clientfd, request_t *req) {
-    Rio_writen(clientfd, &req, sizeof(request_t));
-}
-
 int main(int argc, char **argv)
 {
     int clientfd, port;
@@ -197,16 +230,9 @@ int main(int argc, char **argv)
                 break;
             }
             uniqueRequest.type = extraire_type(premier_mot);
-            if (uniqueRequest.type == AUTH) {
-                strncpy(uniqueRequest.username, deuxieme_mot, MAX_NAME_LEN - 1);
-                uniqueRequest.username[MAX_NAME_LEN - 1] = '\0';
-                strncpy(uniqueRequest.password, troisieme_mot, MAX_NAME_LEN - 1);
-                uniqueRequest.password[MAX_NAME_LEN - 1] = '\0';
-            }
-            else {
-                strncpy(uniqueRequest.nom_fichier, deuxieme_mot, MAX_NAME_LEN - 1);
-                uniqueRequest.nom_fichier[MAX_NAME_LEN - 1] = '\0';
-            }
+
+            strncpy(uniqueRequest.nom_fichier, deuxieme_mot, MAX_NAME_LEN - 1);uniqueRequest.nom_fichier[MAX_NAME_LEN - 1] = '\0';
+
             Rio_writen(clientfd, &uniqueRequest, sizeof(request_t));
         }
         if (uniqueRequest.type == GET) {
@@ -216,13 +242,10 @@ int main(int argc, char **argv)
             recevoir_ls(&rio);
         }
         else if (uniqueRequest.type == RM) {
-            recevoir_rm(&rio);
+            recevoir_rm(clientfd);
         }
         else if (uniqueRequest.type == PUT) {
             envoyer_fichier(clientfd, &uniqueRequest);
-        }
-        else if (uniqueRequest.type == AUTH) {
-            demander_authentification(clientfd,&uniqueRequest);
         }
         else if (uniqueRequest.type == UNKNOWN) {
             printf("Requête incorrecte.\n");

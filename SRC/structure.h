@@ -31,8 +31,6 @@ typedef struct {
     typereq_t type; 
     char nom_fichier[MAX_NAME_LEN];
     long offset_reprise;
-    char username[MAX_NAME_LEN];
-    char password[MAX_NAME_LEN];
 } request_t;
 
 // codes de retour pour les réponses du serveur au client (Question 6)
@@ -45,6 +43,14 @@ typedef enum {
 typedef struct {
     response_code_t code;
 } response_t;
+
+
+
+// Structure pour l'identification
+typedef struct {
+    char password[MAX_NAME_LEN];
+    char username[MAX_NAME_LEN];
+}authentification_t;
 
 
 #endif
