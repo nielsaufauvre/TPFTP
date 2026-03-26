@@ -8,15 +8,15 @@ int verifier_identifiants(authentification_t *auth_recue) {
     if (authFD < 0) return 0;
 
     char ligne[MAXLINE];
-    char u_f[MAXLINE], p_f[MAXLINE];
+    char user_file[MAXLINE], password_f[MAXLINE];
     rio_t rio_file;
     int trouve = 0;
 
     Rio_readinitb(&rio_file, authFD);
     while (Rio_readlineb(&rio_file, ligne, MAXLINE) > 0) {
-        if (sscanf(ligne, "%[^:]:%s", u_f, p_f) == 2) {
+        if (sscanf(ligne, "%[^:]:%s", user_file, password_f) == 2) {
             if (strcmp(u_f, auth_recue->username) == 0 &&
-                strcmp(p_f, auth_recue->password) == 0) {
+                strcmp(password_f, auth_recue->password) == 0) {
                 trouve = 1;
                 break;
                 }
