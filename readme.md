@@ -7,9 +7,12 @@
 -Gerer le temps d'envois des fichiers
 
 
-A faire :
-    10,12,13,14,17
+a faire;
 
+corriger le bug d'autenthification
+corriger la récupération des fichiers
++12 13 14
+    
 code erreur a implementer:
 200 : succès de la requête ;
 301 et 302 : redirection, respectivement permanente et temporaire ;
