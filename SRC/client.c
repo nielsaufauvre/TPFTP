@@ -158,13 +158,13 @@ void recevoir_ls(rio_t *rio) {
 // Reçoit et affiche le résultat d'une suppression
 void recevoir_rm(int clientfd) {
     if (!authentifier_client(clientfd)) {
+        response_t response;
+        Rio_readn(clientfd, &response, sizeof(response_t));
         printf("Authentification non réussie.\n");
         return;
     }
-
     response_t response;
     Rio_readn(clientfd, &response, sizeof(response_t));
-
     if (response.code == RESPONSE_OK) {
         printf("Suppression du fichier réalisée.\n");
     } else {
@@ -224,12 +224,21 @@ int main(int argc, char **argv)
         memset(premier_mot, 0, MAX_NAME_LEN);
         memset(deuxieme_mot, 0, MAX_NAME_LEN);
         memset(troisieme_mot, 0, MAX_NAME_LEN);
+        uniqueRequest.offset_reprise = 0;
         if (Fgets(buf, MAXLINE, stdin) != NULL) {
             sscanf(buf, "%s %s %s", premier_mot, deuxieme_mot,troisieme_mot);
+            if (strlen(premier_mot) == 0) {
+                continue;
+            }
             if (strcmp(premier_mot, "bye") == 0) {
                 break;
             }
             uniqueRequest.type = extraire_type(premier_mot);
+
+            if (uniqueRequest.type == UNKNOWN) {
+                printf("Requête incorrecte.\n");
+                continue;
+            }
 
             strncpy(uniqueRequest.nom_fichier, deuxieme_mot, MAX_NAME_LEN - 1);uniqueRequest.nom_fichier[MAX_NAME_LEN - 1] = '\0';
 
@@ -249,6 +258,7 @@ int main(int argc, char **argv)
         }
         else if (uniqueRequest.type == UNKNOWN) {
             printf("Requête incorrecte.\n");
+
         }
     }
     Close(clientfd);

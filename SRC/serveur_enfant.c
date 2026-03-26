@@ -159,11 +159,6 @@ void traiter_put(int connfd, request_t *request) {
     Close(writefd);
 }
 
-// Traitement des requêtes inconnues
-void traiter_unknown() {
-    printf("Requete incorrecte.\n");
-}
-
 // Gère la logique des serveurs fils
 void serveur_enfant(int listenfd, int pipe_lecture, int pipe_ecriture) {
     int connfd;
@@ -199,9 +194,6 @@ void serveur_enfant(int listenfd, int pipe_lecture, int pipe_ecriture) {
                 break;
             case PUT:
                 traiter_put(connfd, &request);
-                break;
-            case UNKNOWN:
-                traiter_unknown();
                 break;
             default:
                 break;
