@@ -5,6 +5,8 @@
 #define AUTH_DIR "authentification/admins.txt"
 #define ADMIN_FILE "admins.txt"
 
+
+
 // Vérifie les identifiants lors d'une requête avec besoin d'authentification
 int verifier_identifiants(authentification_t *auth_recue) {
     int authFD = open(AUTH_DIR, O_RDONLY);
@@ -188,15 +190,12 @@ void serveur_enfant(int listenfd, int pipe_lecture, int pipe_ecriture) {
     char client_ip_string[INET_ADDRSTRLEN];
     char client_hostname[MAX_NAME_LEN];
     request_t request;
-    char signal_pere;
-    char signal_retour = 'k';
+   
     while (1) {
-        if (Rio_readn(pipe_lecture, &signal_pere, 1) <= 0) {
-            continue;
-        }
+       
         clientlen = (socklen_t)sizeof(clientaddr);
         connfd = Accept(listenfd, (SA *)&clientaddr, &clientlen);
-        Write(pipe_ecriture, &signal_retour, 1);
+       
         Getnameinfo((SA *)&clientaddr, clientlen,
                     client_hostname, MAX_NAME_LEN, 0, 0, 0);
         Inet_ntop(AF_INET, &clientaddr.sin_addr, client_ip_string,

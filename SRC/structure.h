@@ -7,13 +7,17 @@
 #define MAX_NAME_LEN 256
 
 //Définition du nombre de serveurs (Question 11)
-#define NB_SLAVES 3
+#define NB_SLAVES 2
 
 // taille d'un bloc envoyé (Question 8)
 #define TAILLE_BLOC MAXLINE
 
 //Définition du numéro de port (Question 11)
-#define PORT 10000
+#define PORT 2121
+
+#define PORT_SLAVE1 3000
+#define PORT_SLAVE2 3001
+
 
 /*les differentes types de requêtes (Question 1)*/
 
@@ -51,6 +55,15 @@ typedef struct {
     char password[MAX_NAME_LEN];
     char username[MAX_NAME_LEN];
 }authentification_t;
+
+//strucutre des infos pour les slaves
+
+typedef struct{
+    int num; //numero du slave
+    char host[256];
+    int port;
+} slave_t;
+
 
 
 #endif

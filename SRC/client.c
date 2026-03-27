@@ -224,20 +224,43 @@ void reprise_transfert(int clientfd,rio_t *rio) {
     }
 }
 
+//pour recevoir les informations du slave
+int recevoir_slave_info(int clientfd, slave_t *slave) {
+    if(Rio_readn(clientfd, slave, sizeof(slave_t)) <= 0) {
+        printf("Erreur lors de la réception des informations du slave.\n");
+        return -1;
+    }
+    //tout est reçu
+    return 0;
+}
+
 int main(int argc, char **argv)
 {
     int clientfd, port;
     char buf[MAXLINE];
     rio_t rio;
+    slave_t slave_info;
     if (argc != 2) {
         fprintf(stderr, "usage: %s <host>\n", argv[0]);
          exit(0);
     }
     init_client_dir();
-    char *host = argv[1];
-    port = PORT;
+    char *host = argv[1]; //le host passé en arg
+    port = PORT;   //le port deja defini
     clientfd = Open_clientfd(host, port);
-    printf("Connected to %s\n", host);
+    printf("Connected au serveur principal %s\n", host);
+    
+    if (recevoir_slave_info(clientfd, &slave_info) < 0) {
+        Close(clientfd);
+        exit(1);
+    }
+    Close(clientfd);
+
+    printf("wait.....giving it to a slave server\n");
+    printf("connection to slave server %d at port %d\n",slave_info.num, slave_info.port);
+    
+    clientfd = Open_clientfd(slave_info.host, slave_info.port);
+
     Rio_readinitb(&rio, clientfd);
     request_t uniqueRequest;
     memset(&uniqueRequest, 0, sizeof(request_t));

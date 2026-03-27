@@ -5,8 +5,29 @@
 // Définition du dossier de stockage du serveur
 #define SERVER_DIR "./serveur_storage"
 
+// host, comme c'est sur la même machine ça sera localhost
+#define HOST "localhost"
+
+
 // Création d'un tableau contenant les pids de tous les serveurs fils
 pid_t pid[NB_SLAVES];
+
+//le tableau des ports
+int PORTS[NB_SLAVES] = {PORT_SLAVE1, PORT_SLAVE2};
+
+// Création d'un tableau contenant les information des serveurs slaves
+//c'est ici qu'on accedera pour prendre leurs informations afin que le client puisse se connecter
+slave_t SLAVES[NB_SLAVES];
+
+
+
+// init des slaves
+void init_slave(slave_t *SLAVES,int num, char *host , int port){
+    SLAVES[num].num = num;
+    strcpy(SLAVES[num].host, host);
+    SLAVES[num].port = port;
+
+}
 
 // handler pour envoyer le signal SIGINT à tous les serveurs fils (Question 4)
 void SIGINT_handler(int signal) {
@@ -35,28 +56,41 @@ void fermer_tubes_pere(int pipes[][2], int pipes_retour[][2], int i) {
 }
 
 // Crée les NB_SLAVES serveurs fils
-void creer_esclaves(int listenfd, int pipes[][2], int pipes_retour[][2]) {
+void creer_esclaves(int pipes[][2], int pipes_retour[][2]) {
     for (int i = 0; i < NB_SLAVES; i++) {
+        init_slave(SLAVES,i,HOST,PORTS[i]);
         creer_tubes(pipes, pipes_retour, i);
         pid[i] = Fork();
         if (pid[i] == 0) {
+            int slave_listenfd;
+
             Signal(SIGINT, SIG_DFL);
             fermer_tubes_fils(pipes, pipes_retour, i);
-            serveur_enfant(listenfd, pipes[i][0], pipes_retour[i][1]);
-            Close(listenfd);
+
+            slave_listenfd = Open_listenfd(PORTS[i]);
+            serveur_enfant(slave_listenfd, pipes[i][0], pipes_retour[i][1]);
+
+            Close(slave_listenfd);
             exit(0);
         }
-        fermer_tubes_pere(pipes, pipes_retour, i);
     }
 }
 
 // Délègue une connexion au prochain esclave disponible et attend sa confirmation
-void deleguer_esclave(int pipes[][2], int pipes_retour[][2], int esclave, char signal) {
-    char signal_retour;
-    Write(pipes[esclave][1], &signal, 1);
-    //printf("connexion du client déleguée à l'esclave %d\n", esclave);
-    Read(pipes_retour[esclave][0], &signal_retour, 1);
+
+//dans le cadre de l'amelioration alors cette fonction va me renvoyer le port de l'esclave
+slave_t deleguer_esclave(int num_esclave) {
+    //printf("debut du deleguage\n");
+    slave_t slave = SLAVES[num_esclave];
     //printf("fin du deleguage\n");
+    return SLAVES[num_esclave];
+
+}
+
+
+// Envoie des informations du slave au client
+void send_slave_info(int connfd, slave_t slave) {
+    Rio_writen(connfd, &slave, sizeof(slave_t));
 }
 
 
@@ -66,19 +100,33 @@ int main(int argc, char **argv)
     int pipes[NB_SLAVES][2];
     int pipes_retour[NB_SLAVES][2];
     int prochain_esclave = 0;
-    char signal = 's';
+    slave_t slave;
+   
     mkdir(SERVER_DIR, 0777);
     chdir(SERVER_DIR);
     Signal(SIGINT, SIGINT_handler);
+   
     port = PORT;
     listenfd = Open_listenfd(port);
-    creer_esclaves(listenfd, pipes, pipes_retour);
+    creer_esclaves(pipes, pipes_retour);
     fd_set readfds;
+   
     while (1) {
-        FD_ZERO(&readfds);
-        FD_SET(listenfd, &readfds);
-        Select(listenfd + 1, &readfds, NULL, NULL, NULL);
-        deleguer_esclave(pipes, pipes_retour, prochain_esclave, signal);
-        prochain_esclave = (prochain_esclave + 1) % NB_SLAVES;
-    }
+    int connfd;
+    struct sockaddr_in clientaddr;
+    socklen_t clientlen = sizeof(clientaddr);
+
+    FD_ZERO(&readfds);
+    FD_SET(listenfd, &readfds);
+    Select(listenfd + 1, &readfds, NULL, NULL, NULL);
+
+    connfd = Accept(listenfd, (SA *)&clientaddr, &clientlen);
+
+    slave = deleguer_esclave(prochain_esclave);
+    send_slave_info(connfd, slave);
+
+    Close(connfd);
+
+    prochain_esclave = (prochain_esclave + 1) % NB_SLAVES;
+}
 }
