@@ -40,7 +40,8 @@ typedef struct {
 // codes de retour pour les réponses du serveur au client (Question 6)
 typedef enum {
     RESPONSE_OK,
-    RESPONSE_ERROR
+    RESPONSE_ERROR,
+    RESPONSE_WAIT 
 } response_code_t;
 
 // structure pour les réponses du serveur au client (Question 6)

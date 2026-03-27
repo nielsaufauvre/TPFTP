@@ -2,7 +2,15 @@
 #include "serveur_enfant.h"
 #include "structure.h"
 
-// Définition du dossier de stockage du serveur
+/*(QUESTION 14)
+SOLUTION EN CAS DE PANNE D'UN SERVEUR:
+    LORSQUE LE SERVEUR SLAVE TOMBE EN PANNE, IL FAUT QU'IL Y'AIT UNE FONCTION QUI 
+    VA PERMETTRE AU PERMETTRE DE DETECTER LA PANNE, ET LE CLIENT ACTUEL FERA UNE CONNEXION DE 
+    RETOUR AU MAITRE AFIN QUE CE DERNIER LUI DONNE LES INFORMATIONS DU SLAVE QUI MARCHE 
+    POUR QU'IL SE CONNECTE A CE DERNIER*/
+
+
+ // Définition du dossier de stockage du serveur
 #define SERVER_DIR "./serveur_storage"
 
 // host, comme c'est sur la même machine ça sera localhost

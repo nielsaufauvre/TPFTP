@@ -195,7 +195,9 @@ void serveur_enfant(int listenfd, int pipe_lecture, int pipe_ecriture) {
        
         clientlen = (socklen_t)sizeof(clientaddr);
         connfd = Accept(listenfd, (SA *)&clientaddr, &clientlen);
-       
+        
+      
+
         Getnameinfo((SA *)&clientaddr, clientlen,
                     client_hostname, MAX_NAME_LEN, 0, 0, 0);
         Inet_ntop(AF_INET, &clientaddr.sin_addr, client_ip_string,

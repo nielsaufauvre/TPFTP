@@ -234,6 +234,7 @@ int recevoir_slave_info(int clientfd, slave_t *slave) {
     return 0;
 }
 
+
 int main(int argc, char **argv)
 {
     int clientfd, port;
@@ -261,6 +262,7 @@ int main(int argc, char **argv)
     
     clientfd = Open_clientfd(slave_info.host, slave_info.port);
 
+   
     Rio_readinitb(&rio, clientfd);
     request_t uniqueRequest;
     memset(&uniqueRequest, 0, sizeof(request_t));
