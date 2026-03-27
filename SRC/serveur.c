@@ -54,7 +54,9 @@ void creer_esclaves(int listenfd, int pipes[][2], int pipes_retour[][2]) {
 void deleguer_esclave(int pipes[][2], int pipes_retour[][2], int esclave, char signal) {
     char signal_retour;
     Write(pipes[esclave][1], &signal, 1);
+    //printf("connexion du client déleguée à l'esclave %d\n", esclave);
     Read(pipes_retour[esclave][0], &signal_retour, 1);
+    //printf("fin du deleguage\n");
 }
 
 

@@ -45,6 +45,7 @@ void recevoir_fichier(rio_t *rio, request_t *req, char *buf) {
     size_t total_recu = 0;
     int nb_bloc_a_recevoir;
     response_t response;
+    
     Rio_readnb(rio, &response, sizeof(response_t));
     if (response.code == RESPONSE_ERROR) {
         printf("Erreur : le fichier '%s' n'existe pas sur le serveur.\n", req->nom_fichier);
@@ -55,17 +56,21 @@ void recevoir_fichier(rio_t *rio, request_t *req, char *buf) {
     if (nb_bloc_a_recevoir <= 0) {
         return;
     }
+    //ouverture du fichier en fonction du flag 
     int flags = (req->offset_reprise > 0) ? (O_WRONLY | O_CREAT) : (O_WRONLY | O_CREAT | O_TRUNC);
     int readfd = Open(req->nom_fichier, flags, S_IRUSR | S_IWUSR);
     if (req->offset_reprise > 0) {
         lseek(readfd, req->offset_reprise, SEEK_SET);
     }
+    //creation du fichier de transfert unfinished qui sera utile si le transfert n'aboutit pas
     char fichier_tmp[MAX_NAME_LEN + 20];
     snprintf(fichier_tmp, sizeof(fichier_tmp), "unfinished_%s", req->nom_fichier);
     mkdir(UNFINISHED_DIR, 0777);
     chdir(UNFINISHED_DIR);
     int unfinishedFD = Open(fichier_tmp, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
     chdir("..");
+   
+    //reception des blocs
     for (int i = 0; i < nb_bloc_a_recevoir; i++) {
         size_t reste = taille_attendue - total_recu;
         size_t taille_bloc_actuel = (reste < TAILLE_BLOC) ? reste : TAILLE_BLOC;
@@ -82,10 +87,14 @@ void recevoir_fichier(rio_t *rio, request_t *req, char *buf) {
             break;
         }
     }
+    //fin de reception des blocs
     printf("Transfer successfully complete.\n");
     Close(unfinishedFD);
     chdir(UNFINISHED_DIR);
+    //suppression du fichier temporaire(on en a plus besoin car le transfert s'est bien terminé)
+    //ce fichier n'est utile que lorsque le transfert ne s'est pas terminé pour une reprise de transfert
     remove(fichier_tmp);
+    //retour au repertoire parent
     chdir("..");
     Close(readfd);
 }
@@ -240,7 +249,8 @@ int main(int argc, char **argv)
                 continue;
             }
 
-            strncpy(uniqueRequest.nom_fichier, deuxieme_mot, MAX_NAME_LEN - 1);uniqueRequest.nom_fichier[MAX_NAME_LEN - 1] = '\0';
+            strncpy(uniqueRequest.nom_fichier, deuxieme_mot, MAX_NAME_LEN - 1);
+            uniqueRequest.nom_fichier[MAX_NAME_LEN - 1] = '\0';
 
             Rio_writen(clientfd, &uniqueRequest, sizeof(request_t));
         }

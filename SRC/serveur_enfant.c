@@ -2,9 +2,12 @@
 #include "structure.h"
 #include "serveur_enfant.h"
 
+#define AUTH_DIR "authentification/admins.txt"
+#define ADMIN_FILE "admins.txt"
+
 // Vérifie les identifiants lors d'une requête avec besoin d'authentification
 int verifier_identifiants(authentification_t *auth_recue) {
-    int authFD = open("authentification.txt", O_RDONLY);
+    int authFD = open(AUTH_DIR, O_RDONLY);
     if (authFD < 0) return 0;
 
     char ligne[MAXLINE];
@@ -15,7 +18,7 @@ int verifier_identifiants(authentification_t *auth_recue) {
     Rio_readinitb(&rio_file, authFD);
     while (Rio_readlineb(&rio_file, ligne, MAXLINE) > 0) {
         if (sscanf(ligne, "%[^:]:%s", user_file, password_f) == 2) {
-            if (strcmp(u_f, auth_recue->username) == 0 &&
+            if (strcmp(user_file, auth_recue->username) == 0 &&
                 strcmp(password_f, auth_recue->password) == 0) {
                 trouve = 1;
                 break;
@@ -34,8 +37,8 @@ void traiter_get(int connfd, request_t *request) {
     int n;
     char send_buffer[MAXLINE];
     printf("Le client demande le fichier : %s\n", request->nom_fichier);
-    if (strcmp(request->nom_fichier,"authentification.txt")==0) {
-        printf("Interdiction de transférer le fichier d'authentification.\n");
+    if (strcmp(request->nom_fichier,ADMIN_FILE)==0) {
+        printf("Interdiction de transférer le fichier d'authentification des admins.\n");
     }
     else if (access(request->nom_fichier, F_OK) == 0) {
         printf("Le fichier '%s' existe.\n", request->nom_fichier);
