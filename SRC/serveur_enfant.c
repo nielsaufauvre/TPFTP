@@ -95,26 +95,43 @@ void traiter_rm(int connfd, request_t *request) {
     }
 
     response_t response;
+
+    //Attente d'authentification
     if (!verifier_identifiants(&auth_recue)) {
         response.code = RESPONSE_ERROR;
         Rio_writen(connfd, &response, sizeof(response_t));
         return;
     }
 
+    response.code = RESPONSE_OK;
+    Rio_writen(connfd, &response, sizeof(response_t));
+
+    // Suppression
     if (access(request->nom_fichier, F_OK) == 0) {
-        response.code = RESPONSE_OK;
-        if (Fork() == 0) {
+        pid_t pid = Fork();
+
+        if (pid == 0) {
             char *args[] = {"rm", request->nom_fichier, NULL};
             execvp("rm", args);
-            exit(0);
+            exit(1);
         }
-        wait(NULL);
-    } else {
+
+        int status;
+        waitpid(pid, &status, 0);
+
+        if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
+            response.code = RESPONSE_OK;
+        } else {
+            response.code = RESPONSE_ERROR;
+        }
+    } 
+    else {
         response.code = RESPONSE_ERROR;
     }
 
     Rio_writen(connfd, &response, sizeof(response_t));
 }
+
 
 // Reçoit un fichier envoyé par le client
 void traiter_put(int connfd, request_t *request) {

@@ -109,6 +109,7 @@ void recevoir_fichier(rio_t *rio, request_t *req, char *buf) {
 
 
 int authentifier_client(int clientfd) {
+    printf("Veuillez vous identifier\n");
     char buffer[MAXLINE];
     authentification_t auth;
     response_t resp;
@@ -175,16 +176,20 @@ void recevoir_ls(rio_t *rio) {
 // Reçoit et affiche le résultat d'une suppression
 void recevoir_rm(int clientfd) {
     if (!authentifier_client(clientfd)) {
-        response_t response;
-        Rio_readn(clientfd, &response, sizeof(response_t));
         printf("Authentification non réussie.\n");
         return;
     }
     response_t response;
-    Rio_readn(clientfd, &response, sizeof(response_t));
+    if (Rio_readn(clientfd, &response, sizeof(response_t)) <= 0) {
+        printf("Erreur de lecture de la réponse du serveur.\n");
+        return;
+    }
+    
     if (response.code == RESPONSE_OK) {
         printf("Suppression du fichier réalisée.\n");
-    } else {
+    } 
+    
+    else {
         printf("Problème lors de la suppression du fichier.\n");
     }
 }
@@ -245,6 +250,7 @@ int main(int argc, char **argv)
         memset(deuxieme_mot, 0, MAX_NAME_LEN);
         memset(troisieme_mot, 0, MAX_NAME_LEN);
         uniqueRequest.offset_reprise = 0;
+
         if (Fgets(buf, MAXLINE, stdin) != NULL) {
             sscanf(buf, "%s %s %s", premier_mot, deuxieme_mot,troisieme_mot);
             if (strlen(premier_mot) == 0) {
