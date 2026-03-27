@@ -44,6 +44,7 @@ void traiter_get(int connfd, request_t *request) {
         printf("Le fichier '%s' existe.\n", request->nom_fichier);
         get_descriptor = Open(request->nom_fichier, O_RDONLY, S_IRUSR);
         if (request->offset_reprise > 0) {
+            printf("reprise de transfert à partir de l'offset %ld\n",request->offset_reprise);
             lseek(get_descriptor, request->offset_reprise, SEEK_SET);
         }
         fstat(get_descriptor, &file_stat);

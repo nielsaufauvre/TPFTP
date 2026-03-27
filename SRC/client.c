@@ -86,6 +86,14 @@ void recevoir_fichier(rio_t *rio, request_t *req, char *buf) {
         if (total_recu >= taille_attendue) {
             break;
         }
+       
+        //j'ai ajouté ce bloc de code pour tester si la reprise marche bien
+        //il suffit de le decommenter , compiler, executer le code
+        //puis refaire l'operation inverse
+       /*if(i==nb_bloc_a_recevoir/2) {
+            printf("reception interrompue au bloc %d\n",i);
+            return ;  //juste pour tester la reprise
+        }*/
     }
     //fin de reception des blocs
     printf("Transfer successfully complete.\n");
@@ -183,6 +191,7 @@ void recevoir_rm(int clientfd) {
 
 // Fonction pour réaliser les transferts non terminés
 void reprise_transfert(int clientfd,rio_t *rio) {
+   
     DIR *d = opendir("unfinished");
     struct dirent *dir;
     if (d) {
@@ -190,6 +199,7 @@ void reprise_transfert(int clientfd,rio_t *rio) {
             if (dir->d_name[0] == '.') {
                 continue;
             }
+           
             char path[256];
             snprintf(path, sizeof(path), "unfinished/%s", dir->d_name);
             int fd_log = open(path, O_RDONLY);
@@ -199,6 +209,7 @@ void reprise_transfert(int clientfd,rio_t *rio) {
             request_t req;
             req.type = GET;
             req.offset_reprise = (long)blocs_recus * TAILLE_BLOC;
+            printf("reprise de transfert à partir du bloc %d\n", blocs_recus);
             strcpy(req.nom_fichier, dir->d_name + 11);
             Rio_writen(clientfd, &req, sizeof(request_t));
             char buf[MAXLINE];
