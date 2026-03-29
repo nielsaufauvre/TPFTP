@@ -1,18 +1,13 @@
-#ATTEENTION :
+#ATTENTION :
     La prof avait mentionné que le serveur et client devait être 
     dans 2 repertoires differents (je sais plus trop la raison )
 
-#A traiter
+#A traiter (juste pour des ameliorations)
 -Reponses -> creer plusieurs types
 -Gerer le temps d'envois des fichiers
 
 
-a faire;
 
-corriger le bug d'autenthification
-corriger la récupération des fichiers
-+12 13 14
-    
 code erreur a implementer:
 200 : succès de la requête ;
 301 et 302 : redirection, respectivement permanente et temporaire ;
