@@ -16,3 +16,5 @@ code erreur a implementer:
 404 : ressource non trouvée ;
 500, 502 et 503 : erreurs serveur ;
 504 : le serveur n'a pas répondu.
+
+

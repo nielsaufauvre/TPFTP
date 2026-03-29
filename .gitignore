@@ -62,6 +62,6 @@ sockets.pdf
 SRC/client_storage
 SRC/storage_root
 
-readme.md
+../readme.md
 serveur
 client
